@@ -7,7 +7,7 @@ class KARequest {
 		this.method = method;
 	}
 	
-	call (callback, headers={}, data={}) {
+	call (callback, data={}, headers={}) {
 		var req = http.request({
 			hostname: "www.khanacademy.org",
 			path: this.uri,
@@ -72,7 +72,7 @@ class KARequestAuthenticated extends KARequest {
 		this.fkey = fkey;
 	}
 	
-	call (callback, headers={}, data={}) {
+	call (callback, data={}, headers={}) {
 		headers["cookie"] = `KAID=${this.KAID}; fkey=${this.fkey}`;
 		headers["x-ka-fkey"] = this.fkey;
 		
