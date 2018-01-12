@@ -1,14 +1,16 @@
+const util = require("util");
 const { KARequest, KARequestAuthenticated } = require("./request.js");
 
 const API = {
-	PROFILE_KAID: (kaid) => "/api/internal/user/profile?kaid=${kaid}",
-	PROFILE_USERNAME: (username) => "/api/internal/user/profile?username=${username}",
-	NOTIFICATIONS: () => "/api/internal/user/notifications/readable",
-	CLEARNOTIFICATIONS: () => "/api/internal/user/notifications/clear_brand_new",
-	COMMENTS: (kaencrypted) => `/api/internal/discussions/${kaencrypted}/replies`,
-	TIPSANDTHANKS: (programID) => `/api/internal/discussions/scratchpad/${programID}/comments`,
-	PROGRAMS_KAID: (kaid) => `/api/internal/user/scratchpads?kaid=${kaid}`,
-	PROGRAMS_USERNAME: (username) => `/api/internal/user/scratchpads?username=${username}`
+	PROFILE_KAID: "/api/internal/user/profile?kaid=%s",
+	PROFILE_USERNAME: "/api/internal/user/profile?username=%s",
+	NOTIFICATIONS: "/api/internal/user/notifications/readable",
+	CLEARNOTIFICATIONS: "/api/internal/user/notifications/clear_brand_new",
+	COMMENTS: "/api/internal/discussions/%s/replies",
+	REPLY: "/api/internal/discussions/%s/replies", // Identical to COMMENTS but kept in for sugar
+	TIPSANDTHANKS: "/api/internal/discussions/scratchpad/%s/comments",
+	PROGRAMS_KAID: "/api/internal/user/scratchpads?kaid=%s",
+	PROGRAMS_USERNAME: "/api/internal/user/scratchpads?username=%s"
 };
 
 class KAUser {
@@ -18,7 +20,14 @@ class KAUser {
 		this.fkey = fkey;
 		
 		let finishInit = () => {
-			// put endpoints stuff for all the stuff in api stuff im bored help
+			this.self = {
+				profile: this.request(util.format(API.PROFILE_KAID, this.kaid)),
+				notifications: this.request(API.NOTIFICATIONS),
+				programs: this.request(util.format(API.PROGRAMS_KAID, this.kaid)),
+				
+				clearNotifications: this.request(API.CLEARNOTIFICATIONS, "POST"),
+				reply: this.request(API.REPLY, "POST")
+			};
 			
 			callback(this);
 		};
@@ -47,14 +56,8 @@ class KAUser {
 		}
 	}
 	
-	fetchNewNotifications (callback) {
-		this.profile.call((data) => {
-			let newNotifs = data.countBrandNewNotifications;
-			
-			this.notifications.call((data) => {
-				callback(data.notifications.slice(0, newNotifs));
-			});
-		});
+	request (uri, method="GET") {
+		return new KARequestAuthenticated(uri, this.KAID, this.fkey, method);
 	}
 }
 
