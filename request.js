@@ -1,4 +1,5 @@
 const http = require("http");
+const querystring = require("querystring");
 
 class KARequest {
 	constructor (uri, method="GET") {
@@ -6,15 +7,19 @@ class KARequest {
 		this.method = method;
 	}
 	
-	call (callback, headers={}) {
-		http.request({
+	call (callback, headers={}, data={}) {
+		var req = http.request({
 			hostname: "www.khanacademy.org",
 			path: this.uri,
 			method: this.method,
 			headers: headers
-		}, this.handler(callback)).on("error", (error) => {
+		}, this.handler(callback));
+		
+		req.on("error", (error) => {
 			throw new Error(`KARequest: ${this.uri}: ${error.message}`);
 		});
+		
+		req.write(querystring.stringify(data));
 	}
 	
 	handler (callback) {
@@ -67,11 +72,11 @@ class KARequestAuthenticated extends KARequest {
 		this.fkey = fkey;
 	}
 	
-	call (callback, headers={}) {
+	call (callback, headers={}, data={}) {
 		headers["cookie"] = `KAID=${this.KAID}; fkey=${this.fkey}`;
 		headers["x-ka-fkey"] = this.fkey;
 		
-		super.call(callback, headers);
+		super.call(callback, headers, data);
 	}
 }
 
