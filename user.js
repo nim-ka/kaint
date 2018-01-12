@@ -21,12 +21,12 @@ class KAUser {
 		
 		let finishInit = () => {
 			this.self = {
-				profile: this.request(util.format(API.PROFILE_KAID, this.kaid)),
-				notifications: this.request(API.NOTIFICATIONS),
-				programs: this.request(util.format(API.PROGRAMS_KAID, this.kaid)),
+				profile: (...data) => this.request(util.format(API.PROFILE_KAID, this.kaid, ...data)),
+				notifications: (...data) => this.request(util.format(API.NOTIFICATIONS, ...data)),
+				programs: (...data) => this.request(util.format(API.PROGRAMS_KAID, this.kaid, ...data)),
 				
-				clearNotifications: this.request(API.CLEARNOTIFICATIONS, "POST"),
-				reply: this.request(API.REPLY, "POST")
+				clearNotifications: (...data) => this.request(util.format(API.CLEARNOTIFICATIONS, ...data), "POST"),
+				reply: (...data) => this.request(util.format(API.REPLY, ...data), "POST")
 			};
 			
 			callback(this);
