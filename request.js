@@ -8,7 +8,7 @@ class KARequest {
 	}
 	
 	call (callback, data={}, headers={}) {
-		var req = http.request({
+		let req = http.request({
 			hostname: "www.khanacademy.org",
 			path: this.uri,
 			method: this.method,
@@ -30,7 +30,7 @@ class KARequest {
 				headers
 			} = res;
 			
-			var error;
+			let error;
 			
 			if (statusCode != 200) {
 				error = `KARequest: ${this.uri}: HTTP status ${statusCode} ${statusMessage}`;
@@ -45,12 +45,12 @@ class KARequest {
 			
 			res.setEncoding("utf8");
 			
-			var data = "";
+			let data = "";
 			
 			res.on("data", (chunk) => data += chunk);
 			
 			res.on("end", () => {
-				var parsed;
+				let parsed;
 				
 				try {
 					parsed = JSON.parse(data);
